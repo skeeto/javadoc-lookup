@@ -1,14 +1,12 @@
 ;(java-docs-dirs "~/src/chess/doc/javadoc" "/usr/share/doc/openjdk-6-jdk/api")
 
-(setq java-docs-enable-cache nil)
-
 ;;; Code
 
 (provide 'java-docs)
 
 (global-set-key "\C-hj" 'java-docs-lookup)
 
-(defvar java-docs-enable-cache t
+(defvar java-docs-enable-cache (featurep 'hashtable-print-readable)
   "Enable caching for faster loads.")
 
 (defvar java-docs-cache-dir "~/.java-docs"
@@ -50,11 +48,12 @@ directories are indexed, so do not edit this list directly.")
 
 (defun java-docs-save-cache (cache-name hash)
   "Save a cache to the disk."
-  (if (not (file-exists-p java-docs-cache-dir))
-      (make-directory java-docs-cache-dir))
-  (with-temp-buffer
-    (insert (prin1-to-string hash))
-    (write-file (concat java-docs-cache-dir "/" cache-name))))
+  (when java-docs-enable-cache
+    (if (not (file-exists-p java-docs-cache-dir))
+	(make-directory java-docs-cache-dir))
+    (with-temp-buffer
+      (insert (prin1-to-string hash))
+      (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
   "Combine HASH into the main index hash."
