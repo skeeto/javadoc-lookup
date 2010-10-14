@@ -9,6 +9,9 @@
 (defvar java-docs-enable-cache (featurep 'hashtable-print-readable)
   "Enable caching for faster loads.")
 
+(defvar java-docs-compress-cache (executable-find "gzip")
+  "Compress the cache using gzip.")
+
 (defvar java-docs-cache-dir "~/.java-docs"
   "Location to store index information.")
 
@@ -29,7 +32,7 @@ directories are indexed, so do not edit this list directly.")
 
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
-  (let ((cache-name (md5 dir))
+  (let ((cache-name (concat (md5 dir) (if java-docs-compress-cache ".gz" "")))
 	(hash (make-hash-table :test 'equal)))
     (if (and java-docs-enable-cache
 	     (file-exists-p (concat java-docs-cache-dir "/" cache-name)))
