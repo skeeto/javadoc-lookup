@@ -82,10 +82,16 @@
   (if ido-mode 'ido-completing-read 'completing-read)
   "Function used when performing a minibuffer read.")
 
+(defvar java-docs-full-class nil
+  "Use the fully qualified class name when indexing.")
+
+(defvar java-docs-current-root nil
+  "Current root being indexed. Used to determine full class name.")
+
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
-  (dolist (dir dirs)
-    (java-docs-add dir)))
+  (dolist (java-docs-current-root dirs)
+    (java-docs-add java-docs-current-root)))
 
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
@@ -145,10 +151,14 @@
   (let* ((file (file-name-nondirectory fullfile))
 	 (ext (file-name-extension fullfile))
 	 (class (file-name-sans-extension file))
+	 (rel (substring fullfile (1+ (length java-docs-current-root))))
+	 (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
 	 (case-fold-search nil))
-    (if (and (string-equal ext "html")
-	     (string-match "^[A-Z].+" class))
-	(puthash class fullfile hash))))
+    (when (and (string-equal ext "html")
+	       (string-match "^[A-Z].+" class))
+      (puthash class fullfile hash)
+      (if java-docs-full-class
+	  (puthash fullclass fullfile hash)))))
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
