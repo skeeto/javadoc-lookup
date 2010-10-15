@@ -25,6 +25,10 @@ directories are indexed, so do not edit this list directly.")
 (defvar java-docs-class-list nil
   "List of classes in the index.")
 
+(defvar java-docs-completing-function
+  (if ido-mode 'ido-completing-read 'completing-read)
+  "Function used when performing a minibuffer read.")
+
 (defun java-docs-dirs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
   (dolist (dir dirs)
@@ -95,7 +99,8 @@ directories are indexed, so do not edit this list directly.")
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
-  (interactive (list (ido-completing-read "Class: " java-docs-class-list)))
+  (interactive (list (funcall java-docs-completing-function
+			      "Class: " java-docs-class-list)))
   (let ((file (gethash name java-docs-index)))
     (if file
 	(browse-url file))))
