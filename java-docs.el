@@ -78,6 +78,9 @@
 (defvar java-docs-class-list nil
   "List of classes in the index.")
 
+(defvar java-docs-full-class-list nil
+  "Fully qualified names of classes in the index.")
+
 (defvar java-docs-completing-function
   (if ido-mode 'ido-completing-read 'completing-read)
   "Function used when performing a minibuffer read.")
@@ -88,14 +91,28 @@
 (defvar java-docs-current-root nil
   "Current root being indexed. Used to determine full class name.")
 
+(defvar java-docs-cache-version "-v2"
+  "Cache version, so we don't load the wrong cache.")
+
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
   (dolist (java-docs-current-root dirs)
-    (java-docs-add java-docs-current-root)))
+    (java-docs-add java-docs-current-root))
+  (setq java-docs-class-list
+	(sort* java-docs-class-list '< :key 'length))
+  (setq java-docs-full-class-list
+	(sort* java-docs-full-class-list '< :key 'length)))
+
+(defun java-docs-clear ()
+  "Clear all in-memory java-docs information."
+  (setq java-docs-class-list nil)
+  (setq java-docs-full-class-list nil)
+  (setq java-docs-index (make-hash-table :test 'equal)))
 
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
-  (let ((cache-name (concat (md5 dir) (if java-docs-compress-cache ".gz" "")))
+  (let ((cache-name (concat (md5 dir) java-docs-cache-version
+			    (if java-docs-compress-cache ".gz" "")))
 	(hash (make-hash-table :test 'equal)))
     (if (and java-docs-enable-cache
 	     (file-exists-p (concat java-docs-cache-dir "/" cache-name)))
@@ -110,6 +127,8 @@
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
       (java-docs-add-hash (read (current-buffer)))
+      (setq java-docs-full-class-list
+	    (append java-docs-class-list (read (current-buffer))))
       (kill-buffer))))
 
 (defun java-docs-save-cache (cache-name hash)
@@ -119,6 +138,7 @@
 	(make-directory java-docs-cache-dir))
     (with-temp-buffer
       (insert (prin1-to-string hash))
+      (insert (print1-to-string java-docs-full-class-list))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
@@ -156,9 +176,11 @@
 	 (case-fold-search nil))
     (when (and (string-equal ext "html")
 	       (string-match "^[A-Z].+" class))
-      (puthash class fullfile hash)
       (if java-docs-full-class
-	  (puthash fullclass fullfile hash)))))
+	  (puthash fullclass fullfile hash)
+        (puthash class fullfile hash))
+      (setq java-docs-full-class-list
+	    (cons fullclass java-docs-full-class-list)))))
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
@@ -167,3 +189,9 @@
   (let ((file (gethash name java-docs-index)))
     (if file
 	(browse-url file))))
+
+(defun insert-java-import (name)
+  "Insert an import statement with the selected class."
+  (interactive (list (funcall java-docs-completing-function
+			      "Class: " java-docs-full-class-list)))
+  (insert "import " name ";\n"))
