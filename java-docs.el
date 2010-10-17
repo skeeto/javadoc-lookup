@@ -22,7 +22,9 @@
 
 ;; This package provides a quick way to look up any Javadoc
 ;; documentation from Emacs, using your browser to display the
-;; information.
+;; information. Since the mechanism is already there, it also provides
+;; the completing function `insert-java-import' for quickly adding an
+;; import to a source file.
 
 ;; To install, just drop somewhere on your `load-path' and put this in
 ;; your .emacs,
