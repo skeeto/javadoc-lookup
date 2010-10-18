@@ -130,7 +130,7 @@
       (goto-char (point-min))
       (java-docs-add-hash (read (current-buffer)))
       (setq java-docs-full-class-list
-	    (append java-docs-class-list (read (current-buffer))))
+	    (append java-docs-full-class-list (read (current-buffer))))
       (kill-buffer))))
 
 (defun java-docs-save-cache (cache-name hash)
@@ -140,7 +140,7 @@
 	(make-directory java-docs-cache-dir))
     (with-temp-buffer
       (insert (prin1-to-string hash))
-      (insert (print1-to-string java-docs-full-class-list))
+      (insert (prin1-to-string java-docs-full-class-list))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
