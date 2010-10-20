@@ -87,7 +87,7 @@
   (if ido-mode 'ido-completing-read 'completing-read)
   "Function used when performing a minibuffer read.")
 
-(defvar java-docs-full-class nil
+(defvar java-docs-full-class t
   "Use the fully qualified class name when indexing.")
 
 (defvar java-docs-current-root nil
