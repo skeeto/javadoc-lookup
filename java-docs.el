@@ -192,8 +192,51 @@
     (if file
 	(browse-url file))))
 
+;; Insert import functions
+
+(defvar java-docs-import-regexp "^import "
+  "Regular expression for finding import statements.")
+
+(defvar java-docs-package-regexp "^package "
+  "Regular expression for finding package statements.")
+
 (defun insert-java-import (name)
-  "Insert an import statement with the selected class."
+  "Insert an import statement with the selected class at point."
   (interactive (list (funcall java-docs-completing-function
 			      "Class: " java-docs-full-class-list)))
   (insert "import " name ";\n"))
+
+(defun java-in-package ()
+  "Return t if this source has a package statement."
+  (save-excursion
+    (goto-char (point-min))
+    (and (search-forward-regexp java-docs-package-regexp nil t) t)))
+
+(defun java-has-import ()
+  "Return t if this source has at least one import statement."
+  (save-excursion
+    (goto-char (point-min))
+    (and (search-forward-regexp java-docs-import-regexp nil t) t)))
+
+(defun java-goto-first-import ()
+  "Move cursor to the first import statement."
+  (goto-char (point-min))
+  (search-forward-regexp java-docs-import-regexp)
+  (move-beginning-of-line nil))
+
+(defun add-java-import ()
+  "Insert an import statement at import section at the top of the file."
+  (interactive)
+  (save-excursion
+    (if (java-has-import)
+	(progn
+	  (java-goto-first-import)
+	  (call-interactively 'insert-java-import))
+      (progn
+	(goto-char (point-min))
+	(if (java-in-package)
+	    (search-forward-regexp java-docs-package-regexp))
+	(move-end-of-line nil)
+	(forward-char)
+	(insert "\n")
+	(call-interactively 'insert-java-import)))))
