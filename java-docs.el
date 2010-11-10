@@ -224,6 +224,13 @@
   (search-forward-regexp java-docs-import-regexp)
   (move-beginning-of-line nil))
 
+(defun java-goto-last-import ()
+  "Move cursor to the first import statement."
+  (goto-char (point-max))
+  (search-backward-regexp java-docs-import-regexp)
+  (move-end-of-line nil)
+  (forward-char))
+
 (defun add-java-import ()
   "Insert an import statement at import section at the top of the file."
   (interactive)
@@ -240,3 +247,19 @@
 	(forward-char)
 	(insert "\n")
 	(call-interactively 'insert-java-import)))))
+
+;; TODO: This needs a lot of work still. It should be putting the most
+;; generic imports first, down to most specific. Once it's working
+;; properly it should be called in `add-java-import.'
+(defun sort-imports ()
+  "Sort the imports in the import section in proper order."
+  (interactive)
+  (when (java-has-import)
+    (save-excursion
+      (let ((beg (progn
+		   (java-goto-first-import)
+		   (point)))
+	    (end (progn
+		   (java-goto-last-import)
+		   (point))))
+	(sort-lines nil beg end)))))
