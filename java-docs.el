@@ -256,10 +256,29 @@
   (interactive)
   (when (java-has-import)
     (save-excursion
-      (let ((beg (progn
-		   (java-goto-first-import)
-		   (point)))
-	    (end (progn
-		   (java-goto-last-import)
-		   (point))))
-	(sort-lines nil beg end)))))
+      (save-restriction
+	(let ((beg (progn
+		     (java-goto-first-import)
+		     (point)))
+	      (end (progn
+		     (java-goto-last-import)
+		     (point)))
+	      (inhibit-field-text-motion t))
+	  (narrow-to-region beg end)
+	  (goto-char (point-min))
+	  (sort-subr nil 'forward-line 'end-of-line
+		     nil nil 'java-docs-sort))))))
+
+(defun java-docs-sort (a b)
+  "Sort two import statements."
+  (let* ((stra (buffer-substring (car a) (cdr a)))
+	 (strb (buffer-substring (car b) (cdr b)))
+	 (lena (java-docs-package-length stra))
+	 (lenb (java-docs-package-length strb)))
+    (if (= lena lenb)
+	(string< stra strb)
+      (< lena lenb))))
+
+(defun java-docs-package-length (import)
+  "Return length package part of import statement."
+  (- (string-match ".[^.]+$" import) (string-match " [^ ]" import) 1))
