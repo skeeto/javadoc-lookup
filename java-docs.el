@@ -184,10 +184,13 @@
       (setq java-docs-full-class-list
 	    (cons fullclass java-docs-full-class-list)))))
 
+(defun java-docs-completing-read ()
+  "Query the user for a class name."
+  (funcall java-docs-completing-function "Class: " java-docs-class-list))
+
 (defun java-docs-lookup (name)
   "Lookup based on class name."
-  (interactive (list (funcall java-docs-completing-function
-			      "Class: " java-docs-class-list)))
+  (interactive (list (java-docs-completing-read)))
   (let ((file (gethash name java-docs-index)))
     (if file
 	(browse-url file))))
@@ -202,8 +205,7 @@
 
 (defun insert-java-import (name)
   "Insert an import statement with the selected class at point."
-  (interactive (list (funcall java-docs-completing-function
-			      "Class: " java-docs-full-class-list)))
+  (interactive (list (java-docs-completing-read)))
   (insert "import " name ";\n"))
 
 (defun java-in-package ()
