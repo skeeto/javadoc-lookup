@@ -80,15 +80,12 @@
 (defvar java-docs-class-list nil
   "List of classes in the index.")
 
-(defvar java-docs-full-class-list nil
+(defvar java-docs-short-class-list nil
   "Fully qualified names of classes in the index.")
 
 (defvar java-docs-completing-function
   (if ido-mode 'ido-completing-read 'completing-read)
   "Function used when performing a minibuffer read.")
-
-(defvar java-docs-full-class t
-  "Use the fully qualified class name when indexing.")
 
 (defvar java-docs-current-root nil
   "Current root being indexed. Used to determine full class name.")
@@ -102,13 +99,13 @@
     (java-docs-add java-docs-current-root))
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
-  (setq java-docs-full-class-list
-	(sort* java-docs-full-class-list '< :key 'length)))
+  (setq java-docs-short-class-list
+	(sort* (mapcar 'java-docs-short-name java-docs-class-list) '< :key 'length)))
 
 (defun java-docs-clear ()
   "Clear all in-memory java-docs information."
   (setq java-docs-class-list nil)
-  (setq java-docs-full-class-list nil)
+  (setq java-docs-short-class-list nil)
   (setq java-docs-index (make-hash-table :test 'equal)))
 
 (defun java-docs-add (dir)
@@ -123,14 +120,19 @@
       (java-docs-save-cache cache-name hash)
       (java-docs-add-hash hash))))
 
+(defun java-docs-short-name (fullclass)
+  "Return short name for given class."
+  (let ((case-fold-search nil))
+    (substring fullclass (string-match "[[:upper:]]" fullclass))))
+
 (defun java-docs-load-cache (cache-name)
   "Load a cache from disk."
   (let ((file (concat java-docs-cache-dir "/" cache-name)))
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
       (java-docs-add-hash (read (current-buffer)))
-      (setq java-docs-full-class-list
-	    (append java-docs-full-class-list (read (current-buffer))))
+      (setq java-docs-class-list
+	    (append java-docs-class-list (read (current-buffer))))
       (kill-buffer))))
 
 (defun java-docs-save-cache (cache-name hash)
@@ -140,7 +142,7 @@
 	(make-directory java-docs-cache-dir))
     (with-temp-buffer
       (insert (prin1-to-string hash))
-      (insert (prin1-to-string java-docs-full-class-list))
+      (insert (prin1-to-string java-docs-class-list))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
@@ -178,15 +180,17 @@
 	 (case-fold-search nil))
     (when (and (string-equal ext "html")
 	       (string-match "^[A-Z].+" class))
-      (if java-docs-full-class
-	  (puthash fullclass fullfile hash)
-        (puthash class fullfile hash))
-      (setq java-docs-full-class-list
-	    (cons fullclass java-docs-full-class-list)))))
+      (puthash fullclass fullfile hash)
+      (setq java-docs-class-list
+	    (cons fullclass java-docs-class-list)))))
 
 (defun java-docs-completing-read ()
   "Query the user for a class name."
   (funcall java-docs-completing-function "Class: " java-docs-class-list))
+
+(defun java-docs-short-completing-read ()
+  "Query the user for a short class name."
+  (funcall java-docs-completing-function "Class: " java-docs-short-class-list))
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
