@@ -118,7 +118,7 @@
 	     (file-exists-p (concat java-docs-cache-dir "/" cache-name)))
 	(java-docs-load-cache cache-name)
       (java-docs-index dir hash)
-      (java-docs-save-cache cache-name hash)
+      (java-docs-save-cache cache-name dir hash)
       (java-docs-add-hash hash))))
 
 (defun java-docs-short-name (fullclass)
@@ -142,12 +142,13 @@
 	    (append java-docs-class-list (read (current-buffer))))
       (kill-buffer))))
 
-(defun java-docs-save-cache (cache-name hash)
+(defun java-docs-save-cache (cache-name dir hash)
   "Save a cache to the disk."
   (when java-docs-enable-cache
     (if (not (file-exists-p java-docs-cache-dir))
 	(make-directory java-docs-cache-dir))
     (with-temp-buffer
+      (insert ";; " dir "\n\n")
       (insert (prin1-to-string hash))
       (insert (prin1-to-string (hash-table-keys hash)))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
