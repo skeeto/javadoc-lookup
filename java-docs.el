@@ -100,7 +100,8 @@
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
   (setq java-docs-short-class-list
-	(sort* (mapcar 'java-docs-short-name java-docs-class-list) '< :key 'length)))
+	(sort* (mapcar 'java-docs-short-name java-docs-class-list)
+	       '< :key 'length)))
 
 (defun java-docs-clear ()
   "Clear all in-memory java-docs information."
