@@ -125,6 +125,12 @@
   (let ((case-fold-search nil))
     (substring fullclass (string-match "[[:upper:]]" fullclass))))
 
+(defun hash-table-keys (hash)
+  "Return list of the hash table's keys."
+  (let ((keys ()))
+    (maphash (lambda (k v) (setq keys (cons k keys))) hash)
+    keys))
+
 (defun java-docs-load-cache (cache-name)
   "Load a cache from disk."
   (let ((file (concat java-docs-cache-dir "/" cache-name)))
@@ -142,14 +148,13 @@
 	(make-directory java-docs-cache-dir))
     (with-temp-buffer
       (insert (prin1-to-string hash))
-      (insert (prin1-to-string java-docs-class-list))
+      (insert (prin1-to-string (hash-table-keys hash)))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
   "Combine HASH into the main index hash."
   (maphash (lambda (key val)
-	     (puthash key val java-docs-index)
-	     (setq java-docs-class-list (cons key java-docs-class-list)))
+	     (puthash key val java-docs-index))
 	   hash))
 
 (defun java-docs-update-list ()
