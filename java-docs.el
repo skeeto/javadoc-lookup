@@ -79,7 +79,7 @@
 
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
-  (dolist (java-docs-current-root dirs)
+  (dolist (java-docs-current-root (mapcar 'expand-file-name dirs))
     (java-docs-add java-docs-current-root))
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
