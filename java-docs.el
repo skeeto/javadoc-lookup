@@ -74,7 +74,7 @@
 (defvar java-docs-current-root nil
   "Current root being indexed. Used to determine full class name.")
 
-(defvar java-docs-cache-version "-v2"
+(defvar java-docs-cache-version "-v3"
   "Cache version, so we don't load the wrong cache.")
 
 (defun java-docs (&rest dirs)
@@ -121,9 +121,10 @@
   (let ((file (concat java-docs-cache-dir "/" cache-name)))
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
-      (java-docs-add-hash (read (current-buffer)))
-      (setq java-docs-class-list
-	    (nconc java-docs-class-list (read (current-buffer))))
+      (let ((hash (read (current-buffer))))
+	(java-docs-add-hash hash)
+	(setq java-docs-class-list
+	      (nconc java-docs-class-list (hash-table-keys hash))))
       (kill-buffer))))
 
 (defun java-docs-save-cache (cache-name dir hash)
@@ -134,7 +135,6 @@
     (with-temp-buffer
       (insert ";; " dir "\n\n")
       (insert (prin1-to-string hash))
-      (insert (prin1-to-string (hash-table-keys hash)))
       (write-file (concat java-docs-cache-dir "/" cache-name)))))
 
 (defun java-docs-add-hash (hash)
