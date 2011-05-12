@@ -123,7 +123,7 @@
       (goto-char (point-min))
       (java-docs-add-hash (read (current-buffer)))
       (setq java-docs-class-list
-	    (append java-docs-class-list (read (current-buffer))))
+	    (nconc java-docs-class-list (read (current-buffer))))
       (kill-buffer))))
 
 (defun java-docs-save-cache (cache-name dir hash)
