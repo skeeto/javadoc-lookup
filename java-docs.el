@@ -58,6 +58,9 @@
 (defvar java-docs-cache-dir "~/.java-docs"
   "Location to store index information.")
 
+(defvar java-docs-loaded ()
+  "List of loaded documentation directories.")
+
 (defvar java-docs-index (make-hash-table :test 'equal)
   "Index of documentation for quick lookups.")
 
@@ -79,22 +82,29 @@
 
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
-  (dolist (java-docs-current-root (mapcar 'expand-file-name dirs))
-    (java-docs-add java-docs-current-root))
+  (let ((list (remove-if 'java-docs-loadedp (mapcar 'expand-file-name dirs))))
+    (dolist (java-docs-current-root list)
+      (java-docs-add java-docs-current-root)))
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
   (setq java-docs-short-class-list
 	(sort* (mapcar 'java-docs-short-name java-docs-class-list)
 	       '< :key 'length)))
 
+(defun java-docs-loadedp (dir)
+  "Return t if DIR has already been loaded."
+  (member dir java-docs-loaded))
+
 (defun java-docs-clear ()
   "Clear all in-memory java-docs information."
   (setq java-docs-class-list nil)
   (setq java-docs-short-class-list nil)
+  (setq java-docs-loaded nil)
   (setq java-docs-index (make-hash-table :test 'equal)))
 
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
+  (add-to-list 'java-docs-loaded dir)
   (let ((cache-name (concat (md5 dir) java-docs-cache-version
 			    (if java-docs-compress-cache ".gz" "")))
 	(hash (make-hash-table :test 'equal)))
