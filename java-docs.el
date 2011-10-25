@@ -82,8 +82,9 @@
 
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
-  (let ((list (remove-if 'java-docs-loadedp (mapcar 'expand-file-name dirs))))
-    (dolist (java-docs-current-root list)
+  (let ((list (mapcar (lambda (dir) (expand-file-name (concat dir "/"))) dirs)))
+    (dolist (java-docs-current-root (remove-if 'java-docs-loadedp list))
+      (message java-docs-current-root)
       (java-docs-add java-docs-current-root)))
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
@@ -176,7 +177,7 @@
   (let* ((file (file-name-nondirectory fullfile))
 	 (ext (file-name-extension fullfile))
 	 (class (file-name-sans-extension file))
-	 (rel (substring fullfile (1+ (length java-docs-current-root))))
+	 (rel (substring fullfile (length java-docs-current-root)))
 	 (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
 	 (case-fold-search nil))
     (when (and (string-equal ext "html")
