@@ -246,7 +246,8 @@
     (if (java-has-import)
 	(progn
 	  (java-goto-first-import)
-	  (call-interactively 'insert-java-import))
+	  (call-interactively 'insert-java-import)
+	  (sort-imports))
       (progn
 	(goto-char (point-min))
 	(if (java-in-package)
@@ -256,9 +257,6 @@
 	(insert "\n")
 	(call-interactively 'insert-java-import)))))
 
-;; TODO: This needs a lot of work still. It should be putting the most
-;; generic imports first, down to most specific. Once it's working
-;; properly it should be called in `add-java-import.'
 (defun sort-imports ()
   "Sort the imports in the import section in proper order."
   (interactive)
