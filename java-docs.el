@@ -230,14 +230,16 @@
   "Move cursor to the first import statement."
   (goto-char (point-min))
   (search-forward-regexp java-docs-import-regexp)
-  (move-beginning-of-line nil))
+  (move-beginning-of-line nil)
+  (point))
 
 (defun java-goto-last-import ()
   "Move cursor to the first import statement."
   (goto-char (point-max))
   (search-backward-regexp java-docs-import-regexp)
   (move-end-of-line nil)
-  (forward-char))
+  (forward-char)
+  (point))
 
 (defun add-java-import ()
   "Insert an import statement at import section at the top of the file."
@@ -260,30 +262,9 @@
 (defun sort-imports ()
   "Sort the imports in the import section in proper order."
   (interactive)
-  (when (java-has-import)
+  (if (java-has-import)
     (save-excursion
-      (save-restriction
-	(let ((beg (progn
-		     (java-goto-first-import)
-		     (point)))
-	      (end (progn
-		     (java-goto-last-import)
-		     (point)))
-	      (inhibit-field-text-motion t))
-	  (narrow-to-region beg end)
-	  (goto-char (point-min))
-	  (sort-subr nil 'forward-line 'end-of-line
-		     nil nil 'java-docs-sort))))))
-
-(defun java-docs-sort (a b)
-  "Sort two import statements."
-  (let* ((stra (buffer-substring (car a) (cdr a)))
-	 (strb (buffer-substring (car b) (cdr b)))
-	 (lena (java-docs-package-length stra))
-	 (lenb (java-docs-package-length strb)))
-    (if (= lena lenb)
-	(string< stra strb)
-      (< lena lenb))))
+      (sort-lines nil (java-goto-first-import) (java-goto-last-import)))))
 
 (defun java-docs-package-length (import)
   "Return length package part of import statement."
