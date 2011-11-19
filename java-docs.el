@@ -54,7 +54,7 @@
 (defvar java-docs-enable-cache (featurep 'hashtable-print-readable)
   "Enable caching for faster loads.")
 
-(defvar java-docs-compress-cache (executable-find "gzip")
+(defvar java-docs-compress-cache (and (executable-find "gzip") t)
   "Compress the cache using gzip.")
 
 (defvar java-docs-cache-dir "~/.java-docs"
