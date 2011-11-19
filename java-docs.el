@@ -74,11 +74,14 @@
   (if ido-mode 'ido-completing-read 'completing-read)
   "Function used when performing a minibuffer read.")
 
-(defvar java-docs-current-root nil
-  "Current root being indexed. Used to determine full class name.")
-
 (defvar java-docs-cache-version "-v3"
   "Cache version, so we don't load the wrong cache.")
+
+(defvar java-docs-home (file-name-directory load-file-name)
+  "The location of the java-docs source file.")
+
+(defvar java-docs-current-root nil
+  "Current root being indexed. Used to determine full class name.")
 
 (defun java-docs (&rest dirs)
   "Set the Javadoc search path to DIRS and index them."
@@ -86,6 +89,21 @@
     (dolist (java-docs-current-root (remove-if 'java-docs-loadedp list))
       (message java-docs-current-root)
       (java-docs-add java-docs-current-root)))
+  (java-docs-sort))
+
+(defun java-docs-web (&rest urls)
+  "Load pre-cached web indexes for URLS."
+  (dolist (url (remove-if 'java-docs-loadedp urls))
+    (let ((cache-file (concat java-docs-home "webcache/"
+			      (java-docs-hash-name url))))
+      (if (file-exists-p cache-file)
+	  (progn
+	    (java-docs-load-cache cache-file)
+	    (java-docs-sort))
+	(error "No cache for %s" url)))))
+
+(defun java-docs-sort ()
+  "Sort the loaded indexes."
   (setq java-docs-class-list
 	(sort* java-docs-class-list '< :key 'length))
   (setq java-docs-short-class-list
@@ -103,17 +121,22 @@
   (setq java-docs-loaded nil)
   (setq java-docs-index (make-hash-table :test 'equal)))
 
+(defun java-docs-hash-name (dir)
+  "Get the cache hashed name for DIR. This is basically an MD5
+hash plus version info."
+  (concat (md5 dir) java-docs-cache-version
+	  (if java-docs-compress-cache ".gz" "")))
+
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
   (add-to-list 'java-docs-loaded dir)
-  (let ((cache-name (concat (md5 dir) java-docs-cache-version
-			    (if java-docs-compress-cache ".gz" "")))
+  (let ((cache-file (concat java-docs-cache-dir "/" (java-docs-hash-name dir)))
 	(hash (make-hash-table :test 'equal)))
     (if (and java-docs-enable-cache
-	     (file-exists-p (concat java-docs-cache-dir "/" cache-name)))
-	(java-docs-load-cache cache-name)
+	     (file-exists-p cache-file))
+	(java-docs-load-cache cache-file)
       (java-docs-index dir hash)
-      (java-docs-save-cache cache-name dir hash)
+      (java-docs-save-cache cache-file dir hash)
       (java-docs-add-hash hash))))
 
 (defun java-docs-short-name (fullclass)
@@ -127,18 +150,17 @@
     (maphash (lambda (k v) (setq keys (cons k keys))) hash)
     keys))
 
-(defun java-docs-load-cache (cache-name)
+(defun java-docs-load-cache (cache-file)
   "Load a cache from disk."
-  (let ((file (concat java-docs-cache-dir "/" cache-name)))
-    (with-current-buffer (find-file-noselect file)
-      (goto-char (point-min))
-      (let ((hash (read (current-buffer))))
-	(java-docs-add-hash hash)
-	(setq java-docs-class-list
-	      (nconc java-docs-class-list (hash-table-keys hash))))
-      (kill-buffer))))
+  (with-current-buffer (find-file-noselect cache-file)
+    (goto-char (point-min))
+    (let ((hash (read (current-buffer))))
+      (java-docs-add-hash hash)
+      (setq java-docs-class-list
+	    (nconc java-docs-class-list (hash-table-keys hash))))
+    (kill-buffer)))
 
-(defun java-docs-save-cache (cache-name dir hash)
+(defun java-docs-save-cache (cache-file dir hash)
   "Save a cache to the disk."
   (when java-docs-enable-cache
     (if (not (file-exists-p java-docs-cache-dir))
@@ -146,7 +168,7 @@
     (with-temp-buffer
       (insert ";; " dir "\n\n")
       (insert (prin1-to-string hash))
-      (write-file (concat java-docs-cache-dir "/" cache-name)))))
+      (write-file cache-file))))
 
 (defun java-docs-add-hash (hash)
   "Combine HASH into the main index hash."
@@ -196,10 +218,21 @@
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
-  (interactive (list (java-docs-completing-read)))
+  (interactive
+   (progn
+     (unless (java-docs-core-indexed-p)
+       (ignore-errors	       ; Provide *something* useful, if needed
+	 (java-docs-web "http://download.oracle.com/javase/6/docs/api/")))
+     (list (java-docs-completing-read))))
   (let ((file (gethash name java-docs-index)))
     (if file
 	(browse-url file))))
+
+(defun java-docs-core-indexed-p ()
+  "Return t if the JRE Javadoc has been indexed. The class
+java.net.URL is used for this test, since it's simple and should
+always be there."
+  (member "java.net.URL" java-docs-class-list))
 
 ;; Insert import functions
 
