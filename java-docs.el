@@ -22,7 +22,9 @@
 
 ;;   (java-docs "/usr/share/doc/openjdk-6-jdk/api" "~/src/project/doc")
 
-;; For your convenience, lookups can then be done with C-h j.
+;; Lookups can then be done with C-h j. If you haven't loaded the core
+;; Java Javadoc, java-docs will attempt to load a pre-made one for
+;; you, which indexes the official website.
 
 ;; When viewing docs, a browser is fired off with `browse-url'. You
 ;; may have to set your `browse-url-browser-function' to make this
