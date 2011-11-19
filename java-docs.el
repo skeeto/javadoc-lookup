@@ -212,6 +212,9 @@ hash plus version info."
 
 (defun java-docs-completing-read ()
   "Query the user for a class name."
+  (unless (java-docs-core-indexed-p)
+    (ignore-errors	       ; Provide *something* useful, if needed
+      (java-docs-web "http://download.oracle.com/javase/6/docs/api/")))
   (funcall java-docs-completing-function "Class: " java-docs-class-list))
 
 (defun java-docs-short-completing-read ()
@@ -220,12 +223,7 @@ hash plus version info."
 
 (defun java-docs-lookup (name)
   "Lookup based on class name."
-  (interactive
-   (progn
-     (unless (java-docs-core-indexed-p)
-       (ignore-errors	       ; Provide *something* useful, if needed
-	 (java-docs-web "http://download.oracle.com/javase/6/docs/api/")))
-     (list (java-docs-completing-read))))
+  (interactive (list (java-docs-completing-read)))
   (let ((file (gethash name java-docs-index)))
     (if file
 	(browse-url file))))
