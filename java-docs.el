@@ -302,3 +302,5 @@ always be there."
 (defun java-docs-package-length (import)
   "Return length package part of import statement."
   (- (string-match ".[^.]+$" import) (string-match " [^ ]" import) 1))
+
+;;; java-docs.el ends here
