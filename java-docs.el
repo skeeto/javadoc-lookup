@@ -97,20 +97,20 @@
   "Load pre-cached web indexes for URLS."
   (dolist (url (remove-if 'java-docs-loadedp urls))
     (let ((cache-file (concat java-docs-home "webcache/"
-			      (java-docs-hash-name url))))
+                              (java-docs-hash-name url))))
       (if (file-exists-p cache-file)
-	  (progn
-	    (java-docs-load-cache cache-file)
-	    (java-docs-sort))
-	(error "No cache for %s" url)))))
+          (progn
+            (java-docs-load-cache cache-file)
+            (java-docs-sort))
+        (error "No cache for %s" url)))))
 
 (defun java-docs-sort ()
   "Sort the loaded indexes."
   (setq java-docs-class-list
-	(sort* java-docs-class-list '< :key 'length))
+        (sort* java-docs-class-list '< :key 'length))
   (setq java-docs-short-class-list
-	(sort* (mapcar 'java-docs-short-name java-docs-class-list)
-	       '< :key 'length)))
+        (sort* (mapcar 'java-docs-short-name java-docs-class-list)
+               '< :key 'length)))
 
 (defun java-docs-loadedp (dir)
   "Return t if DIR has already been loaded."
@@ -127,16 +127,16 @@
   "Get the cache hashed name for DIR. This is basically an MD5
 hash plus version info."
   (concat (md5 dir) java-docs-cache-version
-	  (if java-docs-compress-cache ".gz" "")))
+          (if java-docs-compress-cache ".gz" "")))
 
 (defun java-docs-add (dir)
   "Add directory to directory list and either index or fetch the cache."
   (add-to-list 'java-docs-loaded dir)
   (let ((cache-file (concat java-docs-cache-dir "/" (java-docs-hash-name dir)))
-	(hash (make-hash-table :test 'equal)))
+        (hash (make-hash-table :test 'equal)))
     (if (and java-docs-enable-cache
-	     (file-exists-p cache-file))
-	(java-docs-load-cache cache-file)
+             (file-exists-p cache-file))
+        (java-docs-load-cache cache-file)
       (java-docs-index dir hash)
       (java-docs-save-cache cache-file dir hash)
       (java-docs-add-hash hash))))
@@ -159,14 +159,14 @@ hash plus version info."
     (let ((hash (read (current-buffer))))
       (java-docs-add-hash hash)
       (setq java-docs-class-list
-	    (nconc java-docs-class-list (hash-table-keys hash))))
+            (nconc java-docs-class-list (hash-table-keys hash))))
     (kill-buffer)))
 
 (defun java-docs-save-cache (cache-file dir hash)
   "Save a cache to the disk."
   (when java-docs-enable-cache
     (if (not (file-exists-p java-docs-cache-dir))
-	(make-directory java-docs-cache-dir))
+        (make-directory java-docs-cache-dir))
     (with-temp-buffer
       (insert ";; " dir "\n\n")
       (insert (prin1-to-string hash))
@@ -175,45 +175,45 @@ hash plus version info."
 (defun java-docs-add-hash (hash)
   "Combine HASH into the main index hash."
   (maphash (lambda (key val)
-	     (puthash key val java-docs-index))
-	   hash))
+             (puthash key val java-docs-index))
+           hash))
 
 (defun java-docs-update-list ()
   "Update the completion list to match the index."
   (setq java-docs-class-list nil)
   (maphash (lambda (key val)
-	     (setq java-docs-class-list (cons key java-docs-class-list)))
-	   java-docs-index))
+             (setq java-docs-class-list (cons key java-docs-class-list)))
+           java-docs-index))
 
 (defun java-docs-index (dir hash)
   "Index the documentation in DIR into HASH."
   (let* ((list (directory-files dir t "^[^.]"))
-	 (files (remove-if 'file-directory-p list))
-	 (dirs (remove-if-not 'file-directory-p list)))
+         (files (remove-if 'file-directory-p list))
+         (dirs (remove-if-not 'file-directory-p list)))
     (dolist (file files)
       (java-docs-add-file file hash))
     (dolist (dir dirs)
       (if (not (string-equal "class-use" (file-name-nondirectory dir)))
-	  (java-docs-index dir hash)))))
+          (java-docs-index dir hash)))))
 
 (defun java-docs-add-file (fullfile hash)
   "Add a file to the index if it looks like a class."
   (let* ((file (file-name-nondirectory fullfile))
-	 (ext (file-name-extension fullfile))
-	 (class (file-name-sans-extension file))
-	 (rel (substring fullfile (length java-docs-current-root)))
-	 (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
-	 (case-fold-search nil))
+         (ext (file-name-extension fullfile))
+         (class (file-name-sans-extension file))
+         (rel (substring fullfile (length java-docs-current-root)))
+         (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
+         (case-fold-search nil))
     (when (and (string-equal ext "html")
-	       (string-match "^[A-Z].+" class))
+               (string-match "^[A-Z].+" class))
       (puthash fullclass fullfile hash)
       (setq java-docs-class-list
-	    (cons fullclass java-docs-class-list)))))
+            (cons fullclass java-docs-class-list)))))
 
 (defun java-docs-completing-read ()
   "Query the user for a class name."
   (unless (java-docs-core-indexed-p)
-    (ignore-errors	       ; Provide *something* useful, if needed
+    (ignore-errors             ; Provide *something* useful, if needed
       (java-docs-web "http://download.oracle.com/javase/6/docs/api/")))
   (funcall java-docs-completing-function "Class: " java-docs-class-list))
 
@@ -226,7 +226,7 @@ hash plus version info."
   (interactive (list (java-docs-completing-read)))
   (let ((file (gethash name java-docs-index)))
     (if file
-	(browse-url file))))
+        (browse-url file))))
 
 (defun java-docs-core-indexed-p ()
   "Return t if the JRE Javadoc has been indexed. The class
@@ -279,18 +279,18 @@ always be there."
   (interactive)
   (save-excursion
     (if (java-has-import)
-	(progn
-	  (java-goto-first-import)
-	  (call-interactively 'insert-java-import)
-	  (sort-imports))
+        (progn
+          (java-goto-first-import)
+          (call-interactively 'insert-java-import)
+          (sort-imports))
       (progn
-	(goto-char (point-min))
-	(if (java-in-package)
-	    (search-forward-regexp java-docs-package-regexp))
-	(move-end-of-line nil)
-	(forward-char)
-	(insert "\n")
-	(call-interactively 'insert-java-import)))))
+        (goto-char (point-min))
+        (if (java-in-package)
+            (search-forward-regexp java-docs-package-regexp))
+        (move-end-of-line nil)
+        (forward-char)
+        (insert "\n")
+        (call-interactively 'insert-java-import)))))
 
 (defun sort-imports ()
   "Sort the imports in the import section in proper order."
