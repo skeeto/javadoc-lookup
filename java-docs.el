@@ -49,6 +49,7 @@
 (require 'cl)
 (require 'ido)
 
+;;;###autoload
 (global-set-key "\C-hj" 'java-docs-lookup)
 
 (defvar java-docs-enable-cache (featurep 'hashtable-print-readable)
@@ -221,6 +222,7 @@ hash plus version info."
   "Query the user for a short class name."
   (funcall java-docs-completing-function "Class: " java-docs-short-class-list))
 
+;;;###autoload
 (defun java-docs-lookup (name)
   "Lookup based on class name."
   (interactive (list (java-docs-completing-read)))
@@ -274,6 +276,7 @@ always be there."
   (forward-char)
   (point))
 
+;;;###autoload
 (defun add-java-import ()
   "Insert an import statement at import section at the top of the file."
   (interactive)
@@ -292,6 +295,7 @@ always be there."
         (insert "\n")
         (call-interactively 'insert-java-import)))))
 
+;;;###autoload
 (defun sort-imports ()
   "Sort the imports in the import section in proper order."
   (interactive)
