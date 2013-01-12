@@ -8,7 +8,7 @@ with Maven. A browser is launched to view the documentation.
 to add this to your initialization file,
 
 ```el
-(global-set-key "\C-hj" 'javadoc-lookup)
+(global-set-key (kbd "C-h j") 'javadoc-lookup)
 ````
 
 You need to tell javadoc-lookup what you would like to have
