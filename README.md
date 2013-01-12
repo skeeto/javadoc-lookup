@@ -11,9 +11,12 @@ to add this to your initialization file,
 (global-set-key (kbd "C-h j") 'javadoc-lookup)
 ````
 
-You need to tell javadoc-lookup what you would like to have
-indexed. There are two ways to do this. You can point it to the root
-of a library's documentation on your filesystem. For example,
+An index for the core Java classes (i.e. java.*) is provided
+built-in. Beyond this, you'll want to tell javadoc-lookup what else
+you would like to have indexed. There are two ways to do this. You can
+point it to the root of a library's documentation on your
+filesystem. For example (the first entry here will replace the
+built-in index),
 
 ```el
 (javadoc-add-roots "/usr/share/doc/openjdk-6-jdk/api"
