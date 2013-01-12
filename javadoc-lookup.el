@@ -187,9 +187,6 @@ always be there."
   (let ((file (gethash name jdl/index)))
     (when file (browse-url file))))
 
-;;;###autoload
-(global-set-key "\C-hj" 'javadoc-lookup)
-
 (provide 'javadoc-lookup)
 
 ;;; javadoc-lookup.el ends here
