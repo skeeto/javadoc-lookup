@@ -34,6 +34,12 @@ This feature requires that you have Maven and the command-line unzip
 utility installed on your system. The initial fetch is slow but Emacs
 will operate from its own cache after that.
 
+## Import functions
+
+Two functions for managing Java imports is provided: `add-java-import`
+and `sort-java-imports`. The former integrates with the javadoc-lookup
+index to provide completions.
+
 ## History
 
 This package obsoletes my previous java-docs package. Use this one
