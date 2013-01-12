@@ -85,7 +85,7 @@ An artifact is specified by a sequence of three strings:
  [groupId artifactId version]."
   (dolist (artifact artifacts)
     (if (maven-fetch artifact)
-        (javadoc-add (maven-fetch-unpack artifact))
+        (javadoc-add-roots (maven-fetch-unpack artifact))
       (error "Failed to fetch %S" artifact))))
 
 (provide 'maven-fetch)
