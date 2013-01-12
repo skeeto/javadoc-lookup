@@ -49,7 +49,7 @@
   (interactive)
   (when (jdl/has-import)
     (save-excursion
-      (sort-lines nil (java-goto-first-import) (java-goto-last-import)))))
+      (sort-lines nil (jdl/goto-first-import) (jdl/goto-last-import)))))
 
 ;;;###autoload
 (defun add-java-import ()
