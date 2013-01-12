@@ -49,7 +49,7 @@
 (require 'cl)
 (require 'ido)
 
-(defgroup javadoc-lookup nil
+(defgroup javadoc-lookup ()
   "Lookup Java library documentation from Emacs."
   :group 'java)
 

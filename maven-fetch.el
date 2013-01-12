@@ -26,10 +26,12 @@
 (require 'javadoc-lookup)
 
 (defcustom maven-program-name "mvn"
-  "Path to the Maven executable.")
+  "Path to the Maven executable."
+  :group 'external)
 
 (defcustom unzip-program-name "unzip"
-  "Path to the unzip executable.")
+  "Path to the unzip executable."
+  :group 'external)
 
 (defvar maven-fetch-command
   "org.apache.maven.plugins:maven-dependency-plugin:2.6:get"
