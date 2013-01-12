@@ -77,7 +77,7 @@ returning the destination directory. Throws an error on any failure."
           (error "Failed to unpack %s" jarfile))))))
 
 ;;;###autoload
-(defun javadoc-add-artifact (&rest artifacts)
+(defun javadoc-add-artifacts (&rest artifacts)
   "Add Maven repository artifacts to the javadoc-lookup index.
 An artifact is specified by a sequence of three strings:
  [groupId artifactId version]."

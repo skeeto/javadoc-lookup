@@ -20,7 +20,8 @@
 ;; `javadoc-lookup'. Multiple directories can be provided at once, for
 ;; example,
 
-;;   (javadoc-add "/usr/share/doc/openjdk-6-jdk/api" "~/src/project/doc")
+;;   (javadoc-add-roots "/usr/share/doc/openjdk-6-jdk/api"
+;;                      "~/src/project/doc")
 
 ;; Lookups can then be done with C-h j. If you haven't loaded the core
 ;; Java Javadoc, it will attempt to load a pre-made database for you,
@@ -142,7 +143,7 @@
                (string-match "^[A-Z].+" class))
       (puthash fullclass fullfile hash))))
 
-(defun javadoc-add (&rest directories)
+(defun javadoc-add-roots (&rest directories)
   "Index and load all documentation under DIRECTORIES."
   (loop for directory in directories
         for truename = (jdl/dir-truename directory)
