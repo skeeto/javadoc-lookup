@@ -32,9 +32,9 @@
 
 ;; More conveniently, you can list Maven artifacts to index,
 
-;;   (javadoc-add-artifacts ["org.lwjgl.lwjgl" "lwjgl" "2.8.2"]
-;;                          ["com.nullprogram" "native-guide" "0.2"]
-;;                          ["org.apache.commons" "commons-math3" "3.0"])
+;;   (javadoc-add-artifacts [org.lwjgl.lwjgl lwjgl "2.8.2"]
+;;                          [com.nullprogram native-guide "0.2"]
+;;                          [org.apache.commons commons-math3 "3.0"])
 
 ;; Browser configuration:
 
