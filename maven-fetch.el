@@ -52,7 +52,7 @@
 returning true on success."
   (let ((jarfile (maven-fetch-artifact-jar artifact)))
     (if (file-exists-p jarfile)
-        (message "Artifact %S already downloaded" artifact)
+        (format "Artifact %S already downloaded" artifact)
       (let ((artifact-arg "-Dartifact=%s:%s:%s:javadoc"))
         (message "Maven is fetching %S ..." artifact)
         (zerop
