@@ -58,9 +58,6 @@
 (defcustom javadoc-lookup-cache-dir (locate-user-emacs-file "javadoc-cache")
   "Filesystem location to store index and cache database.")
 
-(defcustom javadoc-lookup-compress-index (and (executable-find "gzip") t)
-  "When true, compress the cache using gzip.")
-
 (defcustom javadoc-lookup-completing-read-function #'ido-completing-read
   "Function used when performing a minibuffer read.")
 
@@ -72,7 +69,7 @@
 (defvar jdl/index (make-hash-table :test 'equal)
   "Full index of for documentation lookups.")
 
-(defvar jdl/cache-version "-v3"
+(defvar jdl/cache-version ".v4"
   "Cache version, so it won't load old caches.")
 
 (defvar jdl/loaded ()
@@ -95,8 +92,7 @@
 
 (defun jdl/cache-name (dir)
   "Get the cache file name for DIR."
-  (concat (replace-regexp-in-string "[/:]" "+" dir) jdl/cache-version
-          (if javadoc-lookup-compress-index ".gz" "")))
+  (concat (replace-regexp-in-string "[/:]" "+" dir) jdl/cache-version))
 
 (defun jdl/load-cache (cache-file)
   "Load a cache from disk."
@@ -110,7 +106,8 @@
   (unless (file-exists-p javadoc-lookup-cache-dir)
     (make-directory javadoc-lookup-cache-dir t))
   (with-temp-file cache-file
-    (prin1 hash (current-buffer))))
+    (let ((print-circle t))
+      (prin1 hash (current-buffer)))))
 
 (defun jdl/add (dir)
   "Index DIR, using the cache if available."
@@ -128,7 +125,7 @@
   "Combine HASH into the main index hash."
   (maphash (lambda (key val) (puthash key val jdl/index)) hash))
 
-(defun* jdl/index (dir hash &optional (root dir))
+(defun* jdl/index (dir hash &optional (root (list dir "file://")))
   "Index the documentation in DIR into HASH, based on ROOT."
   (let* ((list (directory-files dir t "^[^.]"))
          (files (remove-if 'file-directory-p list))
@@ -144,12 +141,12 @@
   (let* ((file (file-name-nondirectory fullfile))
          (ext (file-name-extension fullfile))
          (class (file-name-sans-extension file))
-         (rel (substring fullfile (length root)))
+         (rel (substring fullfile (length (first root))))
          (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
          (case-fold-search nil))
     (when (and (string-equal ext "html")
                (string-match "^[A-Z].+" class))
-      (puthash fullclass fullfile hash))))
+      (puthash fullclass (cons rel root) hash))))
 
 (defun javadoc-add-roots (&rest directories)
   "Index and load all documentation under DIRECTORIES."
@@ -184,7 +181,7 @@ always be there."
   "Query the user for a class name."
   (unless (jdl/core-indexed-p)
     (ignore-errors ; Provide *something* useful, if needed
-      (jdl/web "http://download.oracle.com/javase/6/docs/api/")))
+      (jdl/web "http://docs.oracle.com/javase/7/docs/api/")))
   (funcall javadoc-lookup-completing-read-function "Class: "
            (jdl/get-class-list)))
 
@@ -192,7 +189,7 @@ always be there."
 (defun javadoc-lookup (name)
   "Lookup based on class name."
   (interactive (list (jdl/completing-read)))
-  (let ((file (gethash name jdl/index)))
+  (let ((file (apply #'concat (reverse (gethash name jdl/index)))))
     (when file (browse-url file))))
 
 (provide 'javadoc-lookup)
