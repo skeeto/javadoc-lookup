@@ -52,9 +52,9 @@
 returning true on success."
   (let ((jarfile (maven-fetch-artifact-jar artifact)))
     (if (file-exists-p jarfile)
-        (format "Artifact %S already downloaded" artifact)
+        (format "Artifact %s already downloaded" artifact)
       (let ((artifact-arg "-Dartifact=%s:%s:%s:javadoc"))
-        (message "Maven is fetching %S ..." artifact)
+        (message "Maven is fetching %s ..." artifact)
         (zerop
          (call-process maven-program-name nil nil nil
                        maven-fetch-command
@@ -86,7 +86,7 @@ An artifact is specified by a sequence of three strings:
   (dolist (artifact artifacts)
     (if (maven-fetch artifact)
         (javadoc-add-roots (maven-fetch-unpack artifact))
-      (error "Failed to fetch %S" artifact))))
+      (error "Failed to fetch %s" artifact))))
 
 (provide 'maven-fetch)
 
