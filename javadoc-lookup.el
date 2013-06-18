@@ -183,7 +183,7 @@ always be there."
     (ignore-errors ; Provide *something* useful, if needed
       (jdl/web "http://docs.oracle.com/javase/7/docs/api/")))
   (funcall javadoc-lookup-completing-read-function "Class: "
-           (jdl/get-class-list)))
+           (jdl/get-class-list) nil nil (thing-at-point 'symbol)))
 
 ;;;###autoload
 (defun javadoc-lookup (name)
