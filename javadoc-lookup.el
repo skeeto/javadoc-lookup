@@ -182,8 +182,11 @@ always be there."
   (unless (jdl/core-indexed-p)
     (ignore-errors ; Provide *something* useful, if needed
       (jdl/web "http://docs.oracle.com/javase/7/docs/api/")))
-  (funcall javadoc-lookup-completing-read-function "Class: "
-           (jdl/get-class-list)))
+  (let ((default (thing-at-point 'symbol))
+        (classes (jdl/get-class-list)))
+    (funcall javadoc-lookup-completing-read-function "Class: "
+             classes nil nil nil nil
+             (and default (find default classes :test #'string-match)))))
 
 ;;;###autoload
 (defun javadoc-lookup (name)
