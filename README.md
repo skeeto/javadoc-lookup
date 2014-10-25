@@ -19,7 +19,7 @@ filesystem. For example (the first entry here will replace the
 built-in index),
 
 ```el
-(javadoc-add-roots "/usr/share/doc/openjdk-6-jdk/api"
+(javadoc-add-roots "/usr/share/doc/openjdk-8-jdk/api"
                    "~/src/project/doc")
 ```
 
