@@ -5,6 +5,7 @@
 ;; Author: Christopher Wellons <mosquitopsu@gmail.com>
 ;; URL: https://github.com/skeeto/javadoc-lookup
 ;; Version: 1.0
+;; Package-Requires: ((cl-lib "0.3"))
 
 ;;; Commentary:
 
@@ -46,7 +47,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'ido)
 
 (defgroup javadoc-lookup ()
@@ -125,11 +126,11 @@
   "Combine HASH into the main index hash."
   (maphash (lambda (key val) (puthash key val jdl/index)) hash))
 
-(defun* jdl/index (dir hash &optional (root (list dir "file://")))
+(cl-defun jdl/index (dir hash &optional (root (list dir "file://")))
   "Index the documentation in DIR into HASH, based on ROOT."
   (let* ((list (directory-files dir t "^[^.]"))
-         (files (remove-if 'file-directory-p list))
-         (dirs (remove-if-not 'file-directory-p list)))
+         (files (cl-remove-if 'file-directory-p list))
+         (dirs (cl-remove-if-not 'file-directory-p list)))
     (dolist (file files)
       (jdl/add-file file hash root))
     (dolist (dir dirs)
@@ -141,8 +142,8 @@
   (let* ((file (file-name-nondirectory fullfile))
          (ext (file-name-extension fullfile))
          (class (file-name-sans-extension file))
-         (rel (substring fullfile (length (first root))))
-         (fullclass (substitute ?. ?/ (file-name-sans-extension rel)))
+         (rel (substring fullfile (length (cl-first root))))
+         (fullclass (cl-substitute ?. ?/ (file-name-sans-extension rel)))
          (case-fold-search nil))
     (when (and (string-equal ext "html")
                (string-match "^[A-Z].+" class))
@@ -150,14 +151,14 @@
 
 (defun javadoc-add-roots (&rest directories)
   "Index and load all documentation under DIRECTORIES."
-  (loop for directory in directories
-        for truename = (jdl/dir-truename directory)
-        unless (jdl/loaded-p truename)
-        do (jdl/add truename)))
+  (cl-loop for directory in directories
+           for truename = (jdl/dir-truename directory)
+           unless (jdl/loaded-p truename)
+           do (jdl/add truename)))
 
 (defun jdl/web (&rest urls)
   "Load pre-cached web indexes for URLS."
-  (dolist (url (remove-if 'jdl/loaded-p urls))
+  (dolist (url (cl-remove-if 'jdl/loaded-p urls))
     (let* ((rel-cache-file (concat "webcache/" (jdl/cache-name url)))
            (cache-file (expand-file-name rel-cache-file jdl/data-root)))
       (if (file-exists-p cache-file)
@@ -173,9 +174,9 @@ always be there."
   (gethash "java.net.URL" jdl/index))
 
 (defun jdl/get-class-list ()
-  (loop for class being the hash-keys of jdl/index
-        collect class into classes
-        finally (return (sort* classes #'< :key #'length))))
+  (cl-loop for class being the hash-keys of jdl/index
+           collect class into classes
+           finally (return (cl-sort classes #'< :key #'length))))
 
 (defun jdl/completing-read ()
   "Query the user for a class name."
@@ -186,7 +187,7 @@ always be there."
         (classes (jdl/get-class-list)))
     (funcall javadoc-lookup-completing-read-function "Class: "
              classes nil nil nil nil
-             (and default (find default classes :test #'string-match)))))
+             (and default (cl-find default classes :test #'string-match)))))
 
 ;;;###autoload
 (defun javadoc-lookup (name)
