@@ -107,7 +107,9 @@
   (unless (file-exists-p javadoc-lookup-cache-dir)
     (make-directory javadoc-lookup-cache-dir t))
   (with-temp-file cache-file
-    (let ((print-circle t))
+    (let ((print-circle t)
+          (print-level nil)
+          (print-length nil))
       (prin1 hash (current-buffer)))))
 
 (defun jdl/add (dir)
