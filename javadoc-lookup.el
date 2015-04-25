@@ -97,10 +97,11 @@
 
 (defun jdl/load-cache (cache-file)
   "Load a cache from disk."
-  (with-current-buffer (find-file-noselect cache-file)
-    (goto-char (point-min))
-    (jdl/add-hash (read (current-buffer)))
-    (kill-buffer)))
+  (let ((require-final-newline nil))
+    (with-current-buffer (find-file-noselect cache-file)
+      (goto-char (point-min))
+      (jdl/add-hash (read (current-buffer)))
+      (kill-buffer))))
 
 (defun jdl/save-cache (cache-file hash)
   "Save a cache to the disk."
