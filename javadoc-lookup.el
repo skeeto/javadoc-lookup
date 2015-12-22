@@ -4,7 +4,7 @@
 
 ;; Author: Christopher Wellons <mosquitopsu@gmail.com>
 ;; URL: https://github.com/skeeto/javadoc-lookup
-;; Version: 1.0
+;; Version: 1.0.0
 ;; Package-Requires: ((cl-lib "0.3"))
 
 ;;; Commentary:
