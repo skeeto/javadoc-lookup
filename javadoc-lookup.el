@@ -2,9 +2,9 @@
 
 ;; This is free and unencumbered software released into the public domain.
 
-;; Author: Christopher Wellons <mosquitopsu@gmail.com>
+;; Author: Christopher Wellons <wellons@nullprogram.com>
 ;; URL: https://github.com/skeeto/javadoc-lookup
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Package-Requires: ((cl-lib "0.3"))
 
 ;;; Commentary:
@@ -12,7 +12,7 @@
 ;; This package provides a quick way to look up any Javadoc
 ;; documentation from Emacs, using your browser to display the
 ;; information. Since the mechanism is already there, java-import.el
-;; provides the completing function `add-java-import' for quickly
+;; provides the completing function `javadoc-add-import' for quickly
 ;; adding an import to a source file.
 
 ;; This mode stores database and index information in

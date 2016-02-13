@@ -39,8 +39,8 @@ will operate from its own cache after that.
 
 ## Import functions
 
-Two functions for managing Java imports is provided: `add-java-import`
-and `sort-java-imports`. The former integrates with the javadoc-lookup
+Two functions for managing Java imports is provided: `javadoc-add-import`
+and `javadoc-sort-imports`. The former integrates with the javadoc-lookup
 index to provide completions.
 
 ## History

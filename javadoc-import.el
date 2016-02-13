@@ -1,10 +1,10 @@
-;;; java-import.el --- quickly add import statements in Java
+;;; javadoc-import.el --- quickly add import statements in Java
 
 ;; This is free and unencumbered software released into the public domain.
 
 ;;; Commentary:
 
-;; Provides the functions `add-java-import' and `sort-java-imports'.
+;; Provides the functions `javadoc-add-import' and `javadoc-sort-imports'.
 
 ;;; Code:
 
@@ -44,7 +44,7 @@
   (point))
 
 ;;;###autoload
-(defun sort-java-imports ()
+(defun javadoc-sort-imports ()
   "Sort the imports in the import section in proper order."
   (interactive)
   (when (jdl/has-import)
@@ -52,7 +52,11 @@
       (sort-lines nil (jdl/goto-first-import) (jdl/goto-last-import)))))
 
 ;;;###autoload
-(defun add-java-import ()
+(define-obsolete-function-alias
+  'sort-java-imports 'javadoc-sort-imports "1.1.0")
+
+;;;###autoload
+(defun javadoc-add-import ()
   "Insert an import statement at import section at the top of the file."
   (interactive)
   (let ((class (jdl/completing-read)))
@@ -61,7 +65,7 @@
           (progn
             (jdl/goto-first-import)
             (insert "import " class ";\n")
-            (sort-java-imports))
+            (javadoc-sort-imports))
         (progn
           (goto-char (point-min))
           (when (jdl/in-package)
@@ -71,6 +75,10 @@
             (insert "\n"))
           (insert "import " class ";\n"))))))
 
-(provide 'java-import)
+;;;###autoload
+(define-obsolete-function-alias
+  'add-java-import 'javadoc-add-import "1.1.0")
 
-;;; java-import.el ends here
+(provide 'javadoc-import)
+
+;;; javadoc-import.el ends here

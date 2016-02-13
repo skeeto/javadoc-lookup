@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'javadoc-lookup)
 
 (defcustom maven-program-name "mvn"
@@ -47,7 +47,7 @@
   (expand-file-name (format "%s/%s" (elt artifact 0) (elt artifact 1))
                     (jdl/dir-truename javadoc-lookup-cache-dir)))
 
-(defun* maven-fetch (artifact)
+(cl-defun maven-fetch (artifact)
   "Use maven to fetch ARTIFACT into the cache directory,
 returning true on success."
   (let ((jarfile (maven-fetch-artifact-jar artifact)))
@@ -60,7 +60,7 @@ returning true on success."
                        maven-fetch-command
                        (format "-Ddest=%s" jarfile)
                        (apply #'format artifact-arg
-                              (coerce artifact 'list))))))))
+                              (cl-coerce artifact 'list))))))))
 
 (defun maven-fetch-unpack (artifact)
   "Unpack an artifact in the javadoc-lookup cache directory,
